@@ -1,26 +1,192 @@
 @import "tailwindcss";
 
+/* Tell Tailwind v4 to use .dark class on html for dark: variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Wise-inspired Design System tokens ─────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand */
+  --color-primary: #9fe870;
+  --color-primary-active: #cdffad;
+  --color-primary-neutral: #c5edab;
+  --color-primary-pale: #e2f6d5;
+
+  /* Ink (text) */
+  --color-ink: #0e0f0c;
+  --color-ink-deep: #163300;
+  --color-body: #454745;
+  --color-mute: #868685;
+
+  /* Canvas (surfaces) */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #e8ebe6;
+
+  /* Semantic */
+  --color-positive: #2ead4b;
+  --color-positive-deep: #054d28;
+  --color-warning: #ffd11a;
+  --color-warning-deep: #b86700;
+  --color-warning-content: #4a3b1c;
+  --color-negative: #d03238;
+  --color-negative-deep: #a72027;
+  --color-negative-darkest: #a7000d;
+  --color-negative-bg: #320707;
+
+  /* Accents */
+  --color-accent-orange: #ffc091;
+  --color-accent-cyan: #38c8ff;
+
+  /* App surface (Tailwind defaults) */
+  --background: var(--color-canvas-soft);
+  --foreground: var(--color-ink);
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --card-border: rgba(14, 15, 12, 0.08);
+  --glow-color-1: rgba(159, 232, 112, 0.12);
+  --glow-color-2: rgba(56, 200, 255, 0.10);
 }
 
-@theme inline {
+.dark {
+  --background: #0a0c09;
+  --foreground: #e8ebe6;
+  --card-bg: rgba(18, 22, 16, 0.75);
+  --card-border: rgba(159, 232, 112, 0.08);
+  --glow-color-1: rgba(159, 232, 112, 0.08);
+  --glow-color-2: rgba(56, 200, 255, 0.06);
+}
+
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-geist-sans), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ── Glassmorphism / card surface ─────────────────────────────────────────── */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 24px -6px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-panel {
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Wise card surface ────────────────────────────────────────────────────── */
+/* White card on sage canvas = no shadow needed, surface contrast is elevation */
+.wise-card {
+  background: var(--color-canvas);
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid rgba(14, 15, 12, 0.06);
+}
+.dark .wise-card {
+  background: rgba(18, 22, 16, 0.85);
+  border-color: rgba(159, 232, 112, 0.07);
+}
+
+/* ── Gradient Borders ─────────────────────────────────────────────────────── */
+.gradient-border-mask {
+  position: relative;
+}
+
+.gradient-border-mask::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.dark .gradient-border-mask::before {
+  background: linear-gradient(135deg, rgba(159, 232, 112, 0.06), rgba(255, 255, 255, 0.01));
+}
+
+/* ── Neon spotlight cursor follow ─────────────────────────────────────────── */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    500px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(159, 232, 112, 0.05),
+    transparent 40%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.dark .glow-card::after {
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(159, 232, 112, 0.07),
+    transparent 45%
+  );
+}
+
+/* ── Text gradient ─────────────────────────────────────────────────────────── */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #9fe870, #38c8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient-primary {
+  background: linear-gradient(135deg, #cdffad, #38c8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Float Animations ──────────────────────────────────────────────────────── */
+@keyframes float-blob-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(50px, -60px) scale(1.1); }
+  66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+@keyframes float-blob-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-40px, 50px) scale(0.95); }
+  66% { transform: translate(60px, -30px) scale(1.1); }
+}
+
+.animate-float-blob-1 { animation: float-blob-1 20s infinite ease-in-out; }
+.animate-float-blob-2 { animation: float-blob-2 24s infinite ease-in-out; }
+
+/* ── Scrollbar styling ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(159, 232, 112, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(159, 232, 112, 0.3);
+}
+
+/* ── No-scrollbar utility ──────────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
